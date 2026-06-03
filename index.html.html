@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kii-Dii 의류 수거함</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #1a7a3a;
+    --green-main: #2db54b;
+    --green-light: #4fd46b;
+    --green-pale: #e8f7ec;
+    --green-mist: #f0faf3;
+    --teal: #26c0a2;
+    --blue: #3bacd6;
+    --gray-text: #555;
+    --gray-light: #aaa;
+    --white: #fff;
+    --shadow-card: 0 2px 12px rgba(45,181,75,0.12);
+    --radius: 18px;
+    --radius-sm: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #f5f9f6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .phone-wrapper {
+    width: 390px;
+    height: 844px;
+    background: var(--white);
+    border-radius: 44px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 0 0 8px #222, 0 0 0 10px #444;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .status-bar {
+    background: var(--green-dark);
+    padding: 12px 24px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-size: 13px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+
+  /* ── SCREENS ── */
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .screen.active { display: flex; }
+
+  /* ── HEADERS ── */
+  .app-header {
+    background: linear-gradient(160deg, var(--green-dark) 0%, var(--green-main) 100%);
+    padding: 14px 20px 20px;
+    text-align: center;
+    color: white;
+    flex-shrink: 0;
+  }
+  .app-header .brand {
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    opacity: 0.85;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .app-header h1 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+  .app-header .hanger-icon { font-size: 32px; display: block; margin-bottom: 2px; }
+
+  .sub-header {
+    background: linear-gradient(160deg, var(--green-dark) 0%, var(--green-main) 100%);
+    padding: 12px 20px 18px;
+    text-align: center;
+    color: white;
+    flex-shrink: 0;
+  }
+  .sub-header .brand {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .sub-header h2 { font-size: 22px; font-weight: 700; margin-top: 2px; }
+
+  .back-bar {
+    background: white;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--gray-text);
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .back-bar:hover { background: #f9f9f9; }
+
+  /* ── CONTENT ── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 14px 8px;
+    background: var(--green-mist);
+    min-height: 0;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* ── CARDS ── */
+  .info-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .info-card h3 { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 8px; }
+  .info-card p { font-size: 13px; color: var(--gray-text); line-height: 1.7; }
+
+  .section-title { font-size: 13px; color: var(--gray-light); font-weight: 500; margin: 2px 4px 10px; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .feature-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px 13px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 50px; height: 50px;
+    background: var(--green-pale);
+    border-radius: 50% 0 var(--radius) 0;
+    opacity: 0.5;
+  }
+  .feature-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(45,181,75,0.2); }
+  .feature-card:active { transform: scale(0.97); }
+  .feature-icon {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    margin-bottom: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .icon-green { background: linear-gradient(135deg, var(--green-main), var(--green-dark)); }
+  .icon-teal  { background: linear-gradient(135deg, var(--teal), #1a9a82); }
+  .icon-blue  { background: linear-gradient(135deg, var(--blue), #2a8aaa); }
+  .icon-lime  { background: linear-gradient(135deg, #6fd86f, var(--green-main)); }
+  .feature-card h4 { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 3px; }
+  .feature-card p { font-size: 11.5px; color: var(--gray-text); line-height: 1.5; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    background: white;
+    border-top: 1px solid #eee;
+    display: flex;
+    padding: 7px 0 12px;
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 3px 0;
+    transition: opacity 0.15s;
+  }
+  .nav-item:hover { opacity: 0.7; }
+  .nav-icon { font-size: 18px; line-height: 1; }
+  .nav-label { font-size: 9.5px; color: var(--gray-light); font-weight: 500; }
+  .nav-item.active .nav-label { color: var(--green-main); font-weight: 700; }
+
+  /* ── NOTICE ── */
+  .notice-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .notice-card:hover { box-shadow: 0 4px 20px rgba(45,181,75,0.2); transform: translateY(-1px); }
+  .notice-card-body { flex: 1; }
+  .notice-card h4 { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 5px; }
+  .notice-card p { font-size: 12.5px; color: var(--gray-text); line-height: 1.5; }
+  .notice-arrow { color: var(--gray-light); font-size: 16px; flex-shrink: 0; }
+
+  /* Notice Detail overlay */
+  .notice-detail {
+    position: absolute;
+    inset: 0;
+    background: white;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .notice-detail.open { display: flex; }
+  .notice-detail-header {
+    background: linear-gradient(160deg, var(--green-dark) 0%, var(--green-main) 100%);
+    padding: 12px 18px 16px;
+    color: white;
+    flex-shrink: 0;
+  }
+  .notice-detail-header .brand {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .notice-detail-header h2 { font-size: 18px; font-weight: 700; margin-top: 2px; }
+  .notice-detail-back {
+    background: white;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--gray-text);
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .notice-detail-back:hover { background: #f9f9f9; }
+  .notice-detail-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 16px;
+    background: var(--green-mist);
+  }
+  .notice-detail-content::-webkit-scrollbar { display: none; }
+  .notice-detail-tag {
+    display: inline-block;
+    background: var(--green-pale);
+    color: var(--green-dark);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .notice-detail-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .notice-detail-date { font-size: 12px; color: var(--gray-light); margin-bottom: 18px; }
+  .notice-detail-divider { height: 1px; background: #eee; margin-bottom: 18px; }
+  .notice-detail-body { font-size: 13.5px; color: #444; line-height: 1.9; }
+  .notice-detail-body p { margin-bottom: 12px; }
+  .notice-detail-body strong { color: #222; }
+  .notice-highlight {
+    background: var(--green-pale);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 14px 0;
+    font-size: 13px;
+    color: var(--green-dark);
+    line-height: 1.7;
+  }
+
+  /* ── LOCATION ── */
+  /* Dropdown sits ABOVE map using z-index */
+  .loc-dropdown-wrap { position: relative; z-index: 20; margin-bottom: 10px; }
+  /* ── LOCATION: featured districts & map ── */
+  .loc-section-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gray-light);
+    letter-spacing: 0.5px;
+    margin: 0 2px 7px;
+    text-transform: uppercase;
+  }
+  .loc-featured-row {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .loc-featured-row::-webkit-scrollbar { display: none; }
+  .loc-feat-btn {
+    flex-shrink: 0;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 22px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .loc-feat-btn:hover { border-color: var(--green-main); color: var(--green-main); }
+  .loc-feat-btn.active {
+    background: var(--green-main);
+    border-color: var(--green-main);
+    color: white;
+    box-shadow: 0 2px 10px rgba(45,181,75,0.3);
+  }
+  .map-area {
+    background: #e8eeea;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 10px;
+    position: relative;
+    min-height: 150px;
+  }
+  .map-area svg { width: 100%; display: block; }
+  /* box list */
+  .box-list-section {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+  }
+  .box-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .box-list-header h4 { font-size: 14px; font-weight: 700; color: #222; }
+  .box-count-badge {
+    background: var(--green-pale);
+    color: var(--green-dark);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .box-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .box-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .box-num {
+    width: 26px; height: 26px;
+    background: linear-gradient(135deg, var(--green-main), var(--green-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .box-info { flex: 1; }
+  .box-addr { font-size: 12.5px; font-weight: 600; color: #222; margin-bottom: 2px; line-height: 1.4; }
+  .box-meta { font-size: 11px; color: var(--gray-light); }
+  .box-no-data {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--gray-light);
+    font-size: 13px;
+  }
+
+    .loc-city-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .loc-city-btn {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 4px;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 600;
+    background: #f0f0f0;
+    color: #666;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .loc-city-btn.active {
+    background: var(--green-main);
+    color: white;
+  }
+  .location-dropdown {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 11px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    box-shadow: var(--shadow-card);
+  }
+  .dropdown-options {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0; right: 0;
+    background: white;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+    z-index: 30;
+    display: none;
+    overflow-y: auto;
+    max-height: 220px;
+  }
+  .dropdown-options::-webkit-scrollbar { width: 4px; }
+  .dropdown-options::-webkit-scrollbar-track { background: #f5f5f5; }
+  .dropdown-options::-webkit-scrollbar-thumb { background: var(--green-light); border-radius: 4px; }
+  .dropdown-options.open { display: block; }
+
+  /* ── DIARY SECTION ── */
+  .diary-section {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+  }
+  .diary-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+  .diary-section h4 { font-size: 14px; font-weight: 700; color: #222; }
+  .diary-section .sub-text { font-size: 11.5px; color: var(--gray-light); margin-bottom: 12px; }
+  .diary-filter-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .diary-filter-btn {
+    background: #f2f2f2;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #555;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .diary-filter-btn.active {
+    background: var(--green-main);
+    color: white;
+    font-weight: 700;
+  }
+  .diary-entry {
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 12px 13px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+  .diary-entry:hover { box-shadow: 0 2px 10px rgba(45,181,75,0.12); }
+  .diary-entry:last-child { margin-bottom: 0; }
+  .diary-entry-accent {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 12px 0 0 12px;
+  }
+  .accent-recycle { background: var(--green-main); }
+  .accent-donate  { background: var(--teal); }
+  .accent-pending { background: #f0b429; }
+  .diary-entry-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .diary-date { font-size: 11px; color: var(--gray-light); font-weight: 500; }
+  .diary-status-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 2px 9px;
+  }
+  .badge-recycle { background: var(--green-pale); color: var(--green-dark); }
+  .badge-donate  { background: #e0f7f4; color: #157a68; }
+  .badge-pending { background: #fff8e1; color: #b07d00; }
+  .diary-entry-addr {
+    font-size: 12px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .diary-entry-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .diary-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    color: var(--gray-text);
+  }
+  .diary-chip .label { font-weight: 500; color: #888; }
+  .diary-pts-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 7px;
+    padding-top: 7px;
+    border-top: 1px dashed #eee;
+  }
+  .diary-usage-text { font-size: 11.5px; color: var(--gray-text); }
+  .diary-pts { font-size: 12px; font-weight: 700; color: var(--green-main); }
+  .diary-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .diary-stat-box {
+    background: var(--green-mist);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .diary-stat-box .stat-num { font-size: 16px; font-weight: 800; color: var(--green-dark); font-family: 'Nunito', sans-serif; }
+  .diary-stat-box .stat-label { font-size: 10px; color: var(--gray-light); margin-top: 2px; }
+  .dropdown-option {
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.1s;
+  }
+  .dropdown-option:hover { background: var(--green-pale); }
+  .dropdown-option:last-child { border-bottom: none; }
+  .dropdown-option.selected { color: var(--green-main); font-weight: 700; }
+
+  .map-placeholder {
+    background: #e8eeea;
+    border-radius: var(--radius);
+    height: 130px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
+  }
+  .map-placeholder svg { width: 100%; height: 100%; }
+
+  .location-info-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--green-main);
+  }
+  .location-info-card h4 { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 5px; }
+  .location-info-card .sub { font-size: 10px; color: var(--gray-light); margin-bottom: 3px; font-weight: 500; }
+  .location-info-card p { font-size: 13px; color: var(--gray-text); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tag {
+    background: var(--green-main);
+    color: white;
+    border-radius: 20px;
+    padding: 3px 11px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  /* ── DISPOSAL ── */
+  .step-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+  }
+  .step-num {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--green-main), var(--green-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 3px; }
+  .step-content p { font-size: 12px; color: var(--gray-text); line-height: 1.6; }
+
+  /* ── MY PAGE ── */
+  .profile-row {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .profile-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--green-light);
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; }
+  .profile-info h4 { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 2px; }
+  .profile-info .pts { font-size: 13px; color: var(--green-main); font-weight: 600; }
+
+  /* Region selector in profile */
+  .region-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .region-badge {
+    background: var(--green-pale);
+    color: var(--green-dark);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #c4e8cb;
+    transition: background 0.15s;
+  }
+  .region-badge:hover { background: #d0f0d8; }
+  .region-badge .edit-icon { font-size: 10px; }
+
+  /* Region edit modal */
+  .region-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+  }
+  .region-modal-overlay.open { display: flex; }
+  .region-modal {
+    background: white;
+    width: 100%;
+    border-radius: 24px 24px 0 0;
+    padding: 20px 18px 30px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .region-modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: #222; }
+  .region-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  .region-grid::-webkit-scrollbar { width: 4px; }
+  .region-grid::-webkit-scrollbar-track { background: #f5f5f5; border-radius: 4px; }
+  .region-grid::-webkit-scrollbar-thumb { background: var(--green-light); border-radius: 4px; }
+  .region-btn {
+    background: #f5f5f5;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 4px;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .region-btn:hover { background: var(--green-pale); color: var(--green-dark); }
+  .region-btn.selected { background: var(--green-main); color: white; font-weight: 700; }
+  .region-modal-close {
+    width: 100%;
+    background: var(--green-main);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .region-modal-close:hover { background: var(--green-dark); }
+
+  /* QR section */
+  .qr-section {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+  }
+  .qr-section h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; color: #222; }
+  .qr-section .sub-text { font-size: 11.5px; color: var(--gray-light); margin-bottom: 12px; }
+
+  .qr-top-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Collection box photo (SVG illustration) */
+  .box-photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #d6cfc4;
+    position: relative;
+  }
+  .box-photo svg { width: 100%; height: 100%; }
+
+  .qr-code-img {
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-code-img svg { width: 84px; height: 84px; }
+
+  .qr-info { flex: 1; }
+  .qr-info p { font-size: 12px; color: var(--gray-text); margin-bottom: 4px; line-height: 1.5; }
+  .qr-info p span { font-weight: 600; color: #333; }
+
+  /* History */
+  .history-section {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+  }
+  .history-section h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; color: #222; }
+  .history-section .sub-text { font-size: 11.5px; color: var(--gray-light); margin-bottom: 10px; }
+  .history-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 12px;
+    gap: 6px;
+  }
+  .history-row:last-child { border-bottom: none; }
+  .history-row .addr { color: var(--gray-text); flex: 1.4; font-size: 11.5px; }
+  .history-row .items { color: #444; flex: 1; text-align: center; font-size: 11.5px; }
+  .history-row .pts { color: var(--green-main); font-weight: 700; text-align: right; white-space: nowrap; }
+
+  /* Animations */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active .content > * {
+    animation: fadeSlideIn 0.28s ease both;
+  }
+  .screen.active .content > *:nth-child(1) { animation-delay: 0.04s; }
+  .screen.active .content > *:nth-child(2) { animation-delay: 0.09s; }
+  .screen.active .content > *:nth-child(3) { animation-delay: 0.14s; }
+  .screen.active .content > *:nth-child(4) { animation-delay: 0.19s; }
+  .screen.active .content > *:nth-child(5) { animation-delay: 0.24s; }
+
+  @media (min-width: 500px) {
+    body { padding: 40px 20px; }
+    .phone-wrapper { margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-wrapper" id="phoneWrapper">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>12 : 40</span>
+    <div class="status-icons">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><rect x="1" y="9" width="3" height="12" rx="1"/><rect x="6" y="6" width="3" height="15" rx="1"/><rect x="11" y="3" width="3" height="18" rx="1"/><rect x="16" y="1" width="3" height="20" rx="1" opacity="0.3"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1.5 8.5c5.8-5.7 15.2-5.7 21 0"/><path d="M5 12c3.9-3.8 10.1-3.8 14 0"/><path d="M8.5 15.5c2-1.9 5.1-1.9 7 0"/><circle cx="12" cy="19" r="1" fill="white"/></svg>
+      <svg width="20" height="12" viewBox="0 0 24 14" fill="none" stroke="white" stroke-width="2"><rect x="1" y="1" width="18" height="12" rx="3"/><path d="M21 4v6" stroke-width="3" stroke-linecap="round"/><rect x="2" y="2" width="14" height="10" rx="2" fill="white" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════ HOME ═══════════════ -->
+  <div class="screen active" id="screen-home">
+    <div class="app-header">
+      <span class="hanger-icon">👕</span>
+      <div class="brand">Kii · Dii</div>
+      <h1>Kii -Dii</h1>
+    </div>
+    <div class="content">
+      <div class="info-card">
+        <h3>의류 수거함 안내</h3>
+        <p>입지 않는 깨끗한 의류를 의류 수거함에<br>기부 및 배출할 수 있습니다.</p>
+        <br>
+        <p>아래 메뉴를 통해 수거함 위치, 배출 방법, 그리고 QR코드를 확인하세요.</p>
+      </div>
+      <div class="section-title">주요 기능</div>
+      <div class="feature-grid">
+        <div class="feature-card" onclick="navigate('notice')">
+          <div class="feature-icon icon-green">📢</div>
+          <h4>공지사항</h4>
+          <p>최신 소식을<br>확인하세요.</p>
+        </div>
+        <div class="feature-card" onclick="navigate('location')">
+          <div class="feature-icon icon-teal">📍</div>
+          <h4>위치</h4>
+          <p>가까운 수거함을<br>찾아보세요.</p>
+        </div>
+        <div class="feature-card" onclick="navigate('disposal')">
+          <div class="feature-icon icon-lime">♻️</div>
+          <h4>배출방법</h4>
+          <p>올바른 배출 방법을<br>알아보세요.</p>
+        </div>
+        <div class="feature-card" onclick="navigate('mypage')">
+          <div class="feature-icon icon-blue">📱</div>
+          <h4>QR코드</h4>
+          <p>수거함 개폐용<br>QR코드</p>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="navigate('home')"><span class="nav-icon">🏠</span><span class="nav-label" style="color:var(--green-main)">홈</span></div>
+      <div class="nav-item" onclick="navigate('notice')"><span class="nav-icon">🔔</span><span class="nav-label">공지사항</span></div>
+      <div class="nav-item" onclick="navigate('location')"><span class="nav-icon">📍</span><span class="nav-label">위치</span></div>
+      <div class="nav-item" onclick="navigate('disposal')"><span class="nav-icon">👔</span><span class="nav-label">배출방법</span></div>
+      <div class="nav-item" onclick="navigate('mypage')"><span class="nav-icon">👤</span><span class="nav-label">MY 페이지</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ NOTICE ═══════════════ -->
+  <div class="screen" id="screen-notice">
+    <div class="sub-header">
+      <div class="brand">Kii · Dii</div>
+      <h2>공지사항</h2>
+    </div>
+    <div class="back-bar" onclick="navigate('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-main)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      뒤로
+    </div>
+    <div class="content">
+      <div class="notice-card" onclick="openNotice(0)">
+        <div class="notice-card-body">
+          <h4>의류 수거함 안내</h4>
+          <p>의류 수거함을 올바르게 이용해주세요. 깨끗하고 건조한 의류만 수거 가능합니다.</p>
+        </div>
+        <span class="notice-arrow">›</span>
+      </div>
+      <div class="notice-card" onclick="openNotice(1)">
+        <div class="notice-card-body">
+          <h4>수거함 점검 안내</h4>
+          <p>5월 25일 정기 점검으로 일부 수거함이 폐쇄될 예정입니다.</p>
+        </div>
+        <span class="notice-arrow">›</span>
+      </div>
+      <div class="notice-card" onclick="openNotice(2)">
+        <div class="notice-card-body">
+          <h4>여름 옷 수거 캠페인</h4>
+          <p>여름 옷 정리 시즌! 입지 않는 옷을 기부해주세요.</p>
+        </div>
+        <span class="notice-arrow">›</span>
+      </div>
+      <div class="notice-card" onclick="openNotice(3)">
+        <div class="notice-card-body">
+          <h4>나의 배출 일지 개설!</h4>
+          <p>자신이 배출한 의류가 어떻게 활용되는지 알 수 있습니다.</p>
+        </div>
+        <span class="notice-arrow">›</span>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="navigate('home')"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></div>
+      <div class="nav-item active" onclick="navigate('notice')"><span class="nav-icon">🔔</span><span class="nav-label" style="color:var(--green-main)">공지사항</span></div>
+      <div class="nav-item" onclick="navigate('location')"><span class="nav-icon">📍</span><span class="nav-label">위치</span></div>
+      <div class="nav-item" onclick="navigate('disposal')"><span class="nav-icon">👔</span><span class="nav-label">배출방법</span></div>
+      <div class="nav-item" onclick="navigate('mypage')"><span class="nav-icon">👤</span><span class="nav-label">MY 페이지</span></div>
+    </div>
+
+    <!-- Notice Detail Overlay (inside notice screen) -->
+    <div class="notice-detail" id="notice-detail">
+      <div class="notice-detail-header">
+        <div class="brand">Kii · Dii</div>
+        <h2 id="nd-title">제목</h2>
+      </div>
+      <div class="notice-detail-back" onclick="closeNotice()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-main)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        공지사항 목록으로
+      </div>
+      <div class="notice-detail-content">
+        <span class="notice-detail-tag" id="nd-tag">공지</span>
+        <div class="notice-detail-title" id="nd-full-title"></div>
+        <div class="notice-detail-date" id="nd-date"></div>
+        <div class="notice-detail-divider"></div>
+        <div class="notice-detail-body" id="nd-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ LOCATION ═══════════════ -->
+  <div class="screen" id="screen-location">
+    <div class="sub-header">
+      <div class="brand">Kii · Dii</div>
+      <h2>위치</h2>
+    </div>
+    <div class="back-bar" onclick="navigate('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-main)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      뒤로
+    </div>
+    <div class="content">
+
+      <!-- ① 조사 완료 5개 구 빠른 선택 -->
+      <div class="loc-section-label">📌 조사 완료 지역</div>
+      <div class="loc-featured-row">
+        <div class="loc-feat-btn active" onclick="selectFeaturedDistrict('중구', this)">중구</div>
+        <div class="loc-feat-btn" onclick="selectFeaturedDistrict('종로구', this)">종로구</div>
+        <div class="loc-feat-btn" onclick="selectFeaturedDistrict('마포구', this)">마포구</div>
+        <div class="loc-feat-btn" onclick="selectFeaturedDistrict('원미구', this)">원미구</div>
+        <div class="loc-feat-btn" onclick="selectFeaturedDistrict('부평구', this)">부평구</div>
+      </div>
+
+      <!-- ② 기타 지역 2단계 드롭다운 -->
+      <div class="loc-section-label" style="margin-top:6px">🔍 기타 지역 검색</div>
+      <div class="loc-dropdown-wrap">
+        <div class="loc-city-tabs">
+          <button class="loc-city-btn active" onclick="switchLocCity('서울', this)">서울</button>
+          <button class="loc-city-btn" onclick="switchLocCity('경기', this)">경기</button>
+          <button class="loc-city-btn" onclick="switchLocCity('인천', this)">인천</button>
+        </div>
+        <div class="location-dropdown" onclick="toggleDropdown(event)">
+          <span style="color:#888;font-size:13px">▼ 구/군 선택</span>
+          <span id="selected-region" style="font-weight:700;color:#333">전체</span>
+        </div>
+        <div class="dropdown-options" id="dropdown-opts"></div>
+      </div>
+
+      <!-- ③ 지도 -->
+      <div class="map-area" id="map-area">
+        <!-- SVG maps injected by JS -->
+      </div>
+
+      <!-- ④ 수거함 목록 -->
+      <div id="box-list-wrap"></div>
+
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="navigate('home')"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></div>
+      <div class="nav-item" onclick="navigate('notice')"><span class="nav-icon">🔔</span><span class="nav-label">공지사항</span></div>
+      <div class="nav-item active" onclick="navigate('location')"><span class="nav-icon">📍</span><span class="nav-label" style="color:var(--green-main)">위치</span></div>
+      <div class="nav-item" onclick="navigate('disposal')"><span class="nav-icon">👔</span><span class="nav-label">배출방법</span></div>
+      <div class="nav-item" onclick="navigate('mypage')"><span class="nav-icon">👤</span><span class="nav-label">MY 페이지</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ DISPOSAL ═══════════════ -->
+  <div class="screen" id="screen-disposal">
+    <div class="sub-header">
+      <div class="brand">Kii · Dii</div>
+      <h2>배출방법</h2>
+    </div>
+    <div class="back-bar" onclick="navigate('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-main)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      뒤로
+    </div>
+    <div class="content">
+      <div class="step-card"><div class="step-num">1</div><div class="step-content"><h4>의류 준비하기</h4><p>깨끗하고 건조한 의류를 준비합니다. 얼룩이나 손상이 심한 옷은 제외해주세요.</p></div></div>
+      <div class="step-card"><div class="step-num">2</div><div class="step-content"><h4>수거함 찾기</h4><p>앱의 위치 탭에서 가장 가까운 의류 수거함을 찾습니다.</p></div></div>
+      <div class="step-card"><div class="step-num">3</div><div class="step-content"><h4>QR코드 스캔하기</h4><p>QR코드 탭의 고유 코드를 수거함에 스캔하여 개폐합니다.</p></div></div>
+      <div class="step-card"><div class="step-num">4</div><div class="step-content"><h4>의류 배출하기</h4><p>수거함이 열리면 의류를 넣고 무게 측정 후 지불해야 할 금액을 결제한 후 뚜껑을 닫습니다.</p></div></div>
+      <div class="step-card"><div class="step-num">5</div><div class="step-content"><h4>완료</h4><p>의류 배출이 완료되었습니다. 포인트 적립을 확인해주세요. 감사합니다!</p></div></div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="navigate('home')"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></div>
+      <div class="nav-item" onclick="navigate('notice')"><span class="nav-icon">🔔</span><span class="nav-label">공지사항</span></div>
+      <div class="nav-item" onclick="navigate('location')"><span class="nav-icon">📍</span><span class="nav-label">위치</span></div>
+      <div class="nav-item active" onclick="navigate('disposal')"><span class="nav-icon">👔</span><span class="nav-label" style="color:var(--green-main)">배출방법</span></div>
+      <div class="nav-item" onclick="navigate('mypage')"><span class="nav-icon">👤</span><span class="nav-label">MY 페이지</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MY PAGE ═══════════════ -->
+  <div class="screen" id="screen-mypage">
+    <div class="sub-header">
+      <div class="brand">Kii · Dii</div>
+      <h2>MY 페이지</h2>
+    </div>
+    <div class="back-bar" onclick="navigate('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-main)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      뒤로
+    </div>
+    <div class="content">
+
+      <!-- Profile with region selector -->
+      <div class="profile-row">
+        <div class="profile-avatar">👤</div>
+        <div class="profile-info">
+          <h4>ID : 초록별</h4>
+          <p class="pts">적립금 : 333 p</p>
+          <div class="region-selector">
+            <div class="region-badge" onclick="openRegionModal()">
+              <span id="my-region-label">📍 중구</span>
+              <span class="edit-icon">✏️</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR section with box photo -->
+      <div class="qr-section">
+        <h4>나의 배출 큐알코드</h4>
+        <p class="sub-text">5월 25일 배출 예정인 큐알코드를 제공해드립니다.</p>
+
+        <!-- Top row: box photo + qr code -->
+        <div class="qr-top-row">
+          <!-- Collection box illustration -->
+          <div class="box-photo">
+            <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background / wall -->
+              <rect width="90" height="90" fill="#b8b0a4"/>
+              <!-- Ground -->
+              <rect x="0" y="72" width="90" height="18" fill="#9a9490"/>
+              <!-- Box body -->
+              <rect x="18" y="28" width="54" height="46" rx="4" fill="#e8a020"/>
+              <!-- Box lid/top -->
+              <rect x="14" y="22" width="62" height="10" rx="3" fill="#c87800"/>
+              <!-- Slot opening -->
+              <rect x="28" y="14" width="34" height="12" rx="6" fill="#c87800"/>
+              <rect x="30" y="16" width="30" height="8" rx="4" fill="#111" opacity="0.6"/>
+              <!-- Brand text area on box -->
+              <rect x="22" y="38" width="46" height="28" rx="3" fill="#d49018" opacity="0.5"/>
+              <!-- Kii-Dii label -->
+              <text x="45" y="54" text-anchor="middle" font-size="7" fill="white" font-family="Arial" font-weight="bold" opacity="0.9">Kii-Dii</text>
+              <text x="45" y="63" text-anchor="middle" font-size="5.5" fill="white" font-family="Arial" opacity="0.8">의류수거함</text>
+              <!-- Lock icon -->
+              <rect x="38" y="67" width="14" height="4" rx="2" fill="#c87800"/>
+            </svg>
+          </div>
+
+          <!-- QR Code SVG -->
+          <div class="qr-code-img">
+            <svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg">
+              <rect width="84" height="84" fill="#111"/>
+              <!-- quiet zone + modules -->
+              <!-- top-left finder -->
+              <rect x="6" y="6" width="22" height="22" rx="2" fill="white"/>
+              <rect x="9" y="9" width="16" height="16" rx="1" fill="#111"/>
+              <rect x="12" y="12" width="10" height="10" rx="1" fill="white"/>
+              <!-- top-right finder -->
+              <rect x="56" y="6" width="22" height="22" rx="2" fill="white"/>
+              <rect x="59" y="9" width="16" height="16" rx="1" fill="#111"/>
+              <rect x="62" y="12" width="10" height="10" rx="1" fill="white"/>
+              <!-- bottom-left finder -->
+              <rect x="6" y="56" width="22" height="22" rx="2" fill="white"/>
+              <rect x="9" y="59" width="16" height="16" rx="1" fill="#111"/>
+              <rect x="12" y="62" width="10" height="10" rx="1" fill="white"/>
+              <!-- data modules (pattern) -->
+              <rect x="32" y="6" width="4" height="4" fill="white"/><rect x="38" y="6" width="4" height="4" fill="white"/><rect x="44" y="6" width="4" height="4" fill="white"/>
+              <rect x="32" y="12" width="4" height="4" fill="white"/><rect x="44" y="12" width="4" height="4" fill="white"/>
+              <rect x="38" y="18" width="4" height="4" fill="white"/><rect x="44" y="18" width="4" height="4" fill="white"/>
+              <rect x="32" y="24" width="4" height="4" fill="white"/>
+              <rect x="6" y="32" width="4" height="4" fill="white"/><rect x="12" y="32" width="4" height="4" fill="white"/><rect x="24" y="32" width="4" height="4" fill="white"/>
+              <rect x="32" y="32" width="4" height="4" fill="white"/><rect x="38" y="32" width="4" height="4" fill="white"/><rect x="50" y="32" width="4" height="4" fill="white"/><rect x="62" y="32" width="4" height="4" fill="white"/><rect x="74" y="32" width="4" height="4" fill="white"/>
+              <rect x="6" y="38" width="4" height="4" fill="white"/><rect x="18" y="38" width="4" height="4" fill="white"/><rect x="32" y="38" width="4" height="4" fill="white"/><rect x="44" y="38" width="4" height="4" fill="white"/><rect x="56" y="38" width="4" height="4" fill="white"/><rect x="68" y="38" width="4" height="4" fill="white"/>
+              <rect x="6" y="44" width="4" height="4" fill="white"/><rect x="12" y="44" width="4" height="4" fill="white"/><rect x="24" y="44" width="4" height="4" fill="white"/><rect x="38" y="44" width="4" height="4" fill="white"/><rect x="50" y="44" width="4" height="4" fill="white"/><rect x="62" y="44" width="4" height="4" fill="white"/>
+              <rect x="6" y="50" width="4" height="4" fill="white"/><rect x="18" y="50" width="4" height="4" fill="white"/><rect x="32" y="50" width="4" height="4" fill="white"/><rect x="44" y="50" width="4" height="4" fill="white"/><rect x="74" y="50" width="4" height="4" fill="white"/>
+              <rect x="32" y="56" width="4" height="4" fill="white"/><rect x="44" y="56" width="4" height="4" fill="white"/><rect x="56" y="56" width="4" height="4" fill="white"/><rect x="68" y="56" width="4" height="4" fill="white"/>
+              <rect x="32" y="62" width="4" height="4" fill="white"/><rect x="50" y="62" width="4" height="4" fill="white"/><rect x="62" y="62" width="4" height="4" fill="white"/>
+              <rect x="32" y="68" width="4" height="4" fill="white"/><rect x="38" y="68" width="4" height="4" fill="white"/><rect x="56" y="68" width="4" height="4" fill="white"/><rect x="74" y="68" width="4" height="4" fill="white"/>
+              <rect x="32" y="74" width="4" height="4" fill="white"/><rect x="44" y="74" width="4" height="4" fill="white"/><rect x="62" y="74" width="4" height="4" fill="white"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Info below -->
+        <div class="qr-info">
+          <p>📌 <span>지역 :</span> 중구 신당동</p>
+          <p>📍 <span>배출 위치 :</span> 중구 신당동 다산로 33라길</p>
+          <p>👕 <span>배출 품목 :</span> 스웨터</p>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="history-section">
+        <h4>나의 배출 기록</h4>
+        <p class="sub-text">지금까지 배출하신 3번의 기록을 보여드립니다.</p>
+        <div class="history-row">
+          <span class="addr">서울 중구 퇴계로 73가길13</span>
+          <span class="items">셔츠, 바지 3kg</span>
+          <span class="pts">+33 p</span>
+        </div>
+        <div class="history-row">
+          <span class="addr">서울 중구 을지로 299</span>
+          <span class="items">외투 3.3kg</span>
+          <span class="pts">+33.3 p</span>
+        </div>
+        <div class="history-row">
+          <span class="addr">서울 중구 다산로 33라길</span>
+          <span class="items">치마 333g</span>
+          <span class="pts">+3.3 p</span>
+        </div>
+      </div>
+
+      <!-- Diary -->
+      <div class="diary-section">
+        <div class="diary-section-header">
+          <h4>📖 나의 배출 일지</h4>
+        </div>
+        <p class="sub-text">배출한 의류가 어떻게 활용되었는지 확인하세요.</p>
+
+        <!-- Summary stats -->
+        <div class="diary-summary-bar">
+          <div class="diary-stat-box">
+            <div class="stat-num">3</div>
+            <div class="stat-label">총 배출 횟수</div>
+          </div>
+          <div class="diary-stat-box">
+            <div class="stat-num">6.6<span style="font-size:11px">kg</span></div>
+            <div class="stat-label">총 배출 무게</div>
+          </div>
+          <div class="diary-stat-box">
+            <div class="stat-num">69.6<span style="font-size:11px">p</span></div>
+            <div class="stat-label">누적 포인트</div>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="diary-filter-row">
+          <button class="diary-filter-btn active" onclick="filterDiary('전체', this)">전체</button>
+          <button class="diary-filter-btn" onclick="filterDiary('재활용', this)">♻️ 재활용</button>
+          <button class="diary-filter-btn" onclick="filterDiary('기부', this)">🤝 기부</button>
+          <button class="diary-filter-btn" onclick="filterDiary('처리중', this)">⏳ 처리중</button>
+        </div>
+
+        <!-- Diary entries -->
+        <div id="diary-list">
+
+          <div class="diary-entry" data-category="기부">
+            <div class="diary-entry-accent accent-donate"></div>
+            <div style="padding-left:8px">
+              <div class="diary-entry-top">
+                <span class="diary-date">2025.05.10 (토)</span>
+                <span class="diary-status-badge badge-donate">🤝 기부 완료</span>
+              </div>
+              <div class="diary-entry-addr">📍 서울 중구 퇴계로 73가길 13</div>
+              <div class="diary-entry-row">
+                <span class="diary-chip"><span class="label">품목</span> 셔츠, 바지</span>
+                <span class="diary-chip"><span class="label">무게</span> 3 kg</span>
+              </div>
+              <div class="diary-pts-row">
+                <span class="diary-usage-text">🏫 중구 사회복지관 기부</span>
+                <span class="diary-pts">+33 p</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="diary-entry" data-category="재활용">
+            <div class="diary-entry-accent accent-recycle"></div>
+            <div style="padding-left:8px">
+              <div class="diary-entry-top">
+                <span class="diary-date">2025.04.22 (화)</span>
+                <span class="diary-status-badge badge-recycle">♻️ 재활용 완료</span>
+              </div>
+              <div class="diary-entry-addr">📍 서울 중구 을지로 299</div>
+              <div class="diary-entry-row">
+                <span class="diary-chip"><span class="label">품목</span> 외투</span>
+                <span class="diary-chip"><span class="label">무게</span> 3.3 kg</span>
+              </div>
+              <div class="diary-pts-row">
+                <span class="diary-usage-text">🔄 의류 원단 재가공 처리</span>
+                <span class="diary-pts">+33.3 p</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="diary-entry" data-category="처리중">
+            <div class="diary-entry-accent accent-pending"></div>
+            <div style="padding-left:8px">
+              <div class="diary-entry-top">
+                <span class="diary-date">2025.05.20 (화)</span>
+                <span class="diary-status-badge badge-pending">⏳ 처리중</span>
+              </div>
+              <div class="diary-entry-addr">📍 서울 중구 다산로 33라길</div>
+              <div class="diary-entry-row">
+                <span class="diary-chip"><span class="label">품목</span> 치마</span>
+                <span class="diary-chip"><span class="label">무게</span> 333 g</span>
+              </div>
+              <div class="diary-pts-row">
+                <span class="diary-usage-text">📦 수거 후 분류 진행 중</span>
+                <span class="diary-pts">+3.3 p</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="navigate('home')"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></div>
+      <div class="nav-item" onclick="navigate('notice')"><span class="nav-icon">🔔</span><span class="nav-label">공지사항</span></div>
+      <div class="nav-item" onclick="navigate('location')"><span class="nav-icon">📍</span><span class="nav-label">위치</span></div>
+      <div class="nav-item" onclick="navigate('disposal')"><span class="nav-icon">👔</span><span class="nav-label">배출방법</span></div>
+      <div class="nav-item active" onclick="navigate('mypage')"><span class="nav-icon">👤</span><span class="nav-label" style="color:var(--green-main)">MY 페이지</span></div>
+    </div>
+
+    <!-- Region Modal (inside mypage screen) -->
+    <div class="region-modal-overlay" id="region-modal-overlay" onclick="handleRegionOverlayClick(event)">
+      <div class="region-modal" onclick="event.stopPropagation()">
+        <h3>📍 나의 지역구 설정</h3>
+
+        <!-- 시/도 탭 -->
+        <div id="city-tabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:none;">
+        </div>
+
+        <!-- 구/군 그리드 -->
+        <div class="region-grid" id="region-grid-inner"></div>
+
+        <button class="region-modal-close" onclick="closeRegionModal()">확인</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phone-wrapper -->
+
+<script>
+/* ── NOTICE DATA ── */
+const notices = [
+  {
+    tag: '이용 안내',
+    title: '의류 수거함 안내',
+    date: '2025년 5월 20일',
+    body: `
+      <p>Kii-Dii 의류 수거함을 이용해 주시는 모든 분들께 감사드립니다.</p>
+      <div class="notice-highlight">✅ 수거 가능 : 깨끗하고 건조한 상태의 의류<br>❌ 수거 불가 : 젖거나 오염·파손이 심한 의류</div>
+      <p>의류 수거함은 <strong>기부와 재활용</strong>을 목적으로 운영됩니다. 올바른 사용이 더 많은 분들에게 도움이 됩니다.</p>
+      <p>수거함 투입구를 막거나 외부에 의류를 방치하지 않도록 주의해 주세요. 수거함이 가득 찬 경우 앱의 위치 탭에서 다른 수거함을 이용해 주시기 바랍니다.</p>
+    `
+  },
+  {
+    tag: '점검 안내',
+    title: '수거함 정기 점검 안내',
+    date: '2025년 5월 18일',
+    body: `
+      <p>Kii-Dii 서비스 품질 향상을 위해 정기 점검을 실시합니다.</p>
+      <div class="notice-highlight">🗓 점검 일시 : 2025년 5월 25일 (토) 오전 10:00 ~ 오후 2:00<br>🏙 점검 지역 : 중구·종로구 일부 수거함</div>
+      <p>점검 기간 동안 해당 수거함은 <strong>일시 폐쇄</strong>됩니다. 앱의 위치 탭에서 정상 운영 중인 인근 수거함을 확인해 주세요.</p>
+      <p>점검 완료 후 정상 운영 재개 시 푸시 알림을 통해 안내해 드리겠습니다. 이용에 불편을 드려 죄송합니다.</p>
+    `
+  },
+  {
+    tag: '캠페인',
+    title: '여름 옷 수거 캠페인',
+    date: '2025년 5월 15일',
+    body: `
+      <p>여름이 다가옴에 따라 <strong>여름 옷 수거 캠페인</strong>을 시작합니다! 🌞</p>
+      <div class="notice-highlight">📅 캠페인 기간 : 2025년 6월 1일 ~ 6월 30일<br>🎁 이벤트 : 배출 시 포인트 <strong>2배 적립!</strong></div>
+      <p>옷장을 정리하고 입지 않는 여름 옷을 기부해 주세요. 여러분의 기부가 어려운 이웃에게 큰 도움이 됩니다.</p>
+      <p>캠페인 기간 동안 배출한 의류 1kg당 <strong>20포인트</strong>가 적립됩니다 (기존 10포인트). 포인트는 MY 페이지에서 확인할 수 있습니다.</p>
+    `
+  },
+  {
+    tag: '신기능',
+    title: '나의 배출 일지 개설!',
+    date: '2025년 5월 10일',
+    body: `
+      <p>이제 내가 배출한 의류가 어떻게 활용되는지 직접 확인할 수 있습니다! 📖</p>
+      <div class="notice-highlight">🆕 새 기능 : 나의 배출 일지<br>📍 위치 : MY 페이지 → 나의 배출 기록</div>
+      <p>배출 일지에서는 <strong>배출 날짜, 장소, 품목, 무게</strong>를 한눈에 확인할 수 있습니다. 또한 수거된 의류가 재활용되거나 기부된 내역도 순차적으로 공개될 예정입니다.</p>
+      <p>더 투명하고 신뢰할 수 있는 의류 수거 서비스를 만들기 위해 지속적으로 개선하겠습니다. 소중한 의견은 앱 내 피드백 기능을 통해 남겨주세요 😊</p>
+    `
+  }
+];
+
+/* ── NAVIGATION ── */
+function navigate(page) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + page).classList.add('active');
+  const content = document.querySelector('#screen-' + page + ' .content');
+  if (content) content.scrollTop = 0;
+  closeDropdown();
+  closeNotice();
+}
+
+/* ── NOTICE DETAIL ── */
+function openNotice(idx) {
+  const n = notices[idx];
+  document.getElementById('nd-tag').textContent = n.tag;
+  document.getElementById('nd-title').textContent = n.title;
+  document.getElementById('nd-full-title').textContent = n.title;
+  document.getElementById('nd-date').textContent = n.date;
+  document.getElementById('nd-body').innerHTML = n.body;
+  document.getElementById('notice-detail').classList.add('open');
+}
+
+function closeNotice() {
+  const d = document.getElementById('notice-detail');
+  if (d) d.classList.remove('open');
+}
+
+/* ══════════════════════════════════════════
+   LOCATION – DATA
+══════════════════════════════════════════ */
+const locRegions = {
+  '서울': ['전체','강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구'],
+  '경기': ['전체','가평군','고양시 덕양구','고양시 일산동구','고양시 일산서구','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시','성남시 분당구','성남시 수정구','성남시 중원구','수원시 권선구','수원시 영통구','수원시 장안구','수원시 팔달구','시흥시','안산시 단원구','안산시 상록구','안성시','안양시 동안구','안양시 만안구','양주시','양평군','여주시','연천군','오산시','용인시 기흥구','용인시 수지구','용인시 처인구','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시'],
+  '인천': ['전체','강화군','계양구','남동구','동구','미추홀구','부평구','서구','연수구','옹진군','중구'],
+};
+
+/* 조사 완료 5개 구 수거함 데이터 */
+const featuredData = {
+  '중구': {
+    center: '서울 중구 (신당동 일대)',
+    color: '#e74c3c',
+    boxes: [
+      { num:'01', addr:'서울 중구 다산로 33라길 8', note:'신당동 주민센터 앞' },
+      { num:'02', addr:'서울 중구 퇴계로73가길 13', note:'골목 입구' },
+      { num:'03', addr:'서울 중구 을지로 299', note:'상가 주차장 옆' },
+      { num:'04', addr:'서울 중구 신당동 251-102', note:'골목 안쪽' },
+      { num:'05', addr:'서울 중구 신당동 226-4', note:'큰도로 주차장 앞 2개' },
+      { num:'06', addr:'서울 중구 신당동 304-215', note:'골목 안쪽 한참 걸어감' },
+      { num:'07', addr:'서울 중구 신당동 393-80', note:'2개 배치' },
+      { num:'08', addr:'서울 중구 신당동 304-58', note:'골목 안쪽' },
+    ],
+    mapSvg: `<svg viewBox="0 0 358 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="358" height="160" fill="#dde8de"/>
+      <path d="M0 80 Q80 55 180 80 Q260 100 358 75" stroke="#c5d6c7" stroke-width="18" fill="none"/>
+      <path d="M0 80 Q80 55 180 80 Q260 100 358 75" stroke="#f5f5f0" stroke-width="11" fill="none"/>
+      <path d="M80 0 L95 160" stroke="#c5d6c7" stroke-width="14" fill="none"/>
+      <path d="M80 0 L95 160" stroke="#f5f5f0" stroke-width="8" fill="none"/>
+      <path d="M220 0 L205 160" stroke="#c5d6c7" stroke-width="14" fill="none"/>
+      <path d="M220 0 L205 160" stroke="#f5f5f0" stroke-width="8" fill="none"/>
+      <rect x="10" y="30" width="60" height="40" rx="4" fill="#c8d8ca" opacity="0.6"/>
+      <rect x="110" y="95" width="80" height="45" rx="4" fill="#c8d8ca" opacity="0.6"/>
+      <rect x="240" y="30" width="70" height="50" rx="4" fill="#c8d8ca" opacity="0.6"/>
+      <rect x="140" y="28" width="50" height="35" rx="4" fill="#c8d8ca" opacity="0.6"/>
+      <text x="179" y="16" text-anchor="middle" font-size="9" fill="#888" font-family="Arial">신당동</text>
+      <!-- pins -->
+      <circle cx="88" cy="72" r="7" fill="#e74c3c"/><text x="88" y="75" text-anchor="middle" font-size="6" fill="white" font-weight="bold">01</text>
+      <circle cx="55" cy="88" r="7" fill="#e74c3c"/><text x="55" y="91" text-anchor="middle" font-size="6" fill="white" font-weight="bold">02</text>
+      <circle cx="195" cy="84" r="7" fill="#e74c3c"/><text x="195" y="87" text-anchor="middle" font-size="6" fill="white" font-weight="bold">03</text>
+      <circle cx="148" cy="98" r="7" fill="#e74c3c"/><text x="148" y="101" text-anchor="middle" font-size="6" fill="white" font-weight="bold">04</text>
+      <circle cx="110" cy="110" r="7" fill="#e74c3c"/><text x="110" y="113" text-anchor="middle" font-size="6" fill="white" font-weight="bold">05</text>
+      <circle cx="72" cy="100" r="7" fill="#e74c3c"/><text x="72" y="103" text-anchor="middle" font-size="6" fill="white" font-weight="bold">06</text>
+      <circle cx="230" cy="68" r="7" fill="#e74c3c"/><text x="230" y="71" text-anchor="middle" font-size="6" fill="white" font-weight="bold">07</text>
+      <circle cx="165" cy="58" r="7" fill="#e74c3c"/><text x="165" y="61" text-anchor="middle" font-size="6" fill="white" font-weight="bold">08</text>
+    </svg>`
+  },
+  '종로구': {
+    center: '서울 종로구 (창신동 일대)',
+    color: '#2980b9',
+    boxes: [
+      { num:'01', addr:'서울 종로구 창신길 43', note:'창신동 주민센터 근처' },
+      { num:'02', addr:'서울 종로구 창신2길 15', note:'골목 안' },
+      { num:'03', addr:'서울 종로구 창신3길 28', note:'공원 옆' },
+      { num:'04', addr:'서울 종로구 숭인동 45-3', note:'숭인근린공원 입구' },
+      { num:'05', addr:'서울 종로구 숭인동 102-5', note:'낙산묘각사 방향' },
+      { num:'06', addr:'서울 종로구 창신동 두산아파트 앞', note:'창신동두산아파트' },
+      { num:'07', addr:'서울 종로구 창신동 453-8', note:'이화동 방향 골목' },
+      { num:'08', addr:'서울 종로구 창신동 산 5-1', note:'이화동 벽화마을 근처' },
+    ],
+    mapSvg: `<svg viewBox="0 0 358 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="358" height="160" fill="#dce8e4"/>
+      <path d="M0 100 Q90 75 180 95 Q270 115 358 90" stroke="#c0d4cc" stroke-width="18" fill="none"/>
+      <path d="M0 100 Q90 75 180 95 Q270 115 358 90" stroke="#f0f5f2" stroke-width="11" fill="none"/>
+      <path d="M110 0 L120 160" stroke="#c0d4cc" stroke-width="14" fill="none"/>
+      <path d="M110 0 L120 160" stroke="#f0f5f2" stroke-width="8" fill="none"/>
+      <path d="M240 0 L230 160" stroke="#c0d4cc" stroke-width="14" fill="none"/>
+      <path d="M240 0 L230 160" stroke="#f0f5f2" stroke-width="8" fill="none"/>
+      <ellipse cx="190" cy="55" rx="30" ry="22" fill="#b8d4b8" opacity="0.6"/>
+      <text x="190" y="58" text-anchor="middle" font-size="7" fill="#5a7a5a">숭인공원</text>
+      <rect x="10" y="40" width="90" height="55" rx="4" fill="#c5d5cb" opacity="0.6"/>
+      <rect x="250" y="35" width="90" height="60" rx="4" fill="#c5d5cb" opacity="0.6"/>
+      <text x="179" y="14" text-anchor="middle" font-size="9" fill="#888" font-family="Arial">창신동·숭인동</text>
+      <!-- pins -->
+      <circle cx="80" cy="88" r="7" fill="#2980b9"/><text x="80" y="91" text-anchor="middle" font-size="6" fill="white" font-weight="bold">01</text>
+      <circle cx="55" cy="105" r="7" fill="#2980b9"/><text x="55" y="108" text-anchor="middle" font-size="6" fill="white" font-weight="bold">02</text>
+      <circle cx="95" cy="115" r="7" fill="#2980b9"/><text x="95" y="118" text-anchor="middle" font-size="6" fill="white" font-weight="bold">03</text>
+      <circle cx="155" cy="92" r="7" fill="#2980b9"/><text x="155" y="95" text-anchor="middle" font-size="6" fill="white" font-weight="bold">04</text>
+      <circle cx="225" cy="80" r="7" fill="#2980b9"/><text x="225" y="83" text-anchor="middle" font-size="6" fill="white" font-weight="bold">05</text>
+      <circle cx="38" cy="118" r="7" fill="#2980b9"/><text x="38" y="121" text-anchor="middle" font-size="6" fill="white" font-weight="bold">06</text>
+      <circle cx="118" cy="70" r="7" fill="#2980b9"/><text x="118" y="73" text-anchor="middle" font-size="6" fill="white" font-weight="bold">07</text>
+      <circle cx="68" cy="60" r="7" fill="#2980b9"/><text x="68" y="63" text-anchor="middle" font-size="6" fill="white" font-weight="bold">08</text>
+    </svg>`
+  },
+  '마포구': {
+    center: '서울 마포구 (망원동·합정동 일대)',
+    color: '#8e44ad',
+    boxes: [
+      { num:'01', addr:'서울 마포구 월드컵로 15길 12', note:'망원역 인근' },
+      { num:'02', addr:'서울 마포구 월드컵로 9길 34', note:'망원1동 주민센터 방향' },
+      { num:'03', addr:'서울 마포구 망원로 57', note:'한서방과후교실 근처' },
+      { num:'04', addr:'서울 마포구 망원동 424-33', note:'24프레임 골목' },
+      { num:'05', addr:'서울 마포구 합정동 리버아인아파트 앞', note:'강변 방향' },
+      { num:'06', addr:'서울 마포구 합정동 아트빌리지 앞', note:'합정 아트빌리지' },
+      { num:'07', addr:'서울 마포구 합정동 성산로 11길', note:'합정역 방향' },
+      { num:'08', addr:'서울 마포구 합정동 달라이트스퀘어2차 옆', note:'달라이트스퀘어' },
+      { num:'09', addr:'서울 마포구 서교동 장석빌딩 옆', note:'성산중학교 방향' },
+      { num:'10', addr:'서울 마포구 합정동 토마토홀 앞', note:'합정동 남쪽' },
+      { num:'11', addr:'서울 마포구 합정동 마포강푸르지오 앞', note:'1차아파트' },
+      { num:'12', addr:'서울 마포구 망원동 클립샤프 인근', note:'망원시장 방향' },
+    ],
+    mapSvg: `<svg viewBox="0 0 358 170" xmlns="http://www.w3.org/2000/svg">
+      <rect width="358" height="170" fill="#e0dcea"/>
+      <!-- 한강 -->
+      <rect x="0" y="138" width="358" height="32" fill="#a8d4e0" opacity="0.8"/>
+      <text x="179" y="155" text-anchor="middle" font-size="8" fill="#5a8aa0">한강</text>
+      <!-- 강변북로 -->
+      <path d="M0 130 L358 130" stroke="#d4b896" stroke-width="10" fill="none"/>
+      <path d="M0 130 L358 130" stroke="#f5f0e0" stroke-width="6" fill="none"/>
+      <!-- 도로들 -->
+      <path d="M120 0 L118 130" stroke="#c5bcd8" stroke-width="12" fill="none"/>
+      <path d="M120 0 L118 130" stroke="#f0eef8" stroke-width="7" fill="none"/>
+      <path d="M0 60 Q100 50 200 65 Q280 75 358 60" stroke="#c5bcd8" stroke-width="12" fill="none"/>
+      <path d="M0 60 Q100 50 200 65 Q280 75 358 60" stroke="#f0eef8" stroke-width="7" fill="none"/>
+      <!-- 망원역 표시 -->
+      <rect x="108" y="8" width="36" height="14" rx="4" fill="#9c5c9c"/>
+      <text x="126" y="18" text-anchor="middle" font-size="7" fill="white" font-weight="bold">망원역</text>
+      <!-- 합정역 -->
+      <rect x="198" y="95" width="36" height="14" rx="4" fill="#9c5c9c"/>
+      <text x="216" y="105" text-anchor="middle" font-size="7" fill="white" font-weight="bold">합정역</text>
+      <!-- blocks -->
+      <rect x="10" y="30" width="100" height="80" rx="4" fill="#c8c0d8" opacity="0.4"/>
+      <rect x="130" y="25" width="60" height="50" rx="4" fill="#c8c0d8" opacity="0.4"/>
+      <text x="60" y="18" text-anchor="middle" font-size="8" fill="#666">망원동</text>
+      <text x="270" y="45" text-anchor="middle" font-size="8" fill="#666">서교동·합정동</text>
+      <!-- pins 01-12 -->
+      <circle cx="126" cy="30" r="7" fill="#8e44ad"/><text x="126" y="33" text-anchor="middle" font-size="6" fill="white" font-weight="bold">01</text>
+      <circle cx="100" cy="45" r="7" fill="#8e44ad"/><text x="100" y="48" text-anchor="middle" font-size="6" fill="white" font-weight="bold">02</text>
+      <circle cx="42" cy="52" r="7" fill="#8e44ad"/><text x="42" y="55" text-anchor="middle" font-size="6" fill="white" font-weight="bold">03</text>
+      <circle cx="68" cy="42" r="7" fill="#8e44ad"/><text x="68" y="45" text-anchor="middle" font-size="6" fill="white" font-weight="bold">04</text>
+      <circle cx="58" cy="118" r="7" fill="#8e44ad"/><text x="58" y="121" text-anchor="middle" font-size="6" fill="white" font-weight="bold">05</text>
+      <circle cx="100" cy="108" r="7" fill="#8e44ad"/><text x="100" y="111" text-anchor="middle" font-size="6" fill="white" font-weight="bold">06</text>
+      <circle cx="200" cy="80" r="7" fill="#8e44ad"/><text x="200" y="83" text-anchor="middle" font-size="6" fill="white" font-weight="bold">07</text>
+      <circle cx="175" cy="65" r="7" fill="#8e44ad"/><text x="175" y="68" text-anchor="middle" font-size="6" fill="white" font-weight="bold">08</text>
+      <circle cx="278" cy="75" r="7" fill="#8e44ad"/><text x="278" y="78" text-anchor="middle" font-size="6" fill="white" font-weight="bold">09</text>
+      <circle cx="148" cy="118" r="7" fill="#8e44ad"/><text x="148" y="121" text-anchor="middle" font-size="6" fill="white" font-weight="bold">10</text>
+      <circle cx="168" cy="100" r="7" fill="#8e44ad"/><text x="168" y="103" text-anchor="middle" font-size="6" fill="white" font-weight="bold">11</text>
+      <circle cx="144" cy="60" r="7" fill="#8e44ad"/><text x="144" y="63" text-anchor="middle" font-size="6" fill="white" font-weight="bold">12</text>
+    </svg>`
+  },
+  '원미구': {
+    center: '경기 부천시 원미구 (부평1동 일대)',
+    color: '#d35400',
+    boxes: [
+      { num:'01', addr:'경기 부천시 원미구 중동 1146-1', note:'부평1동 행정복지센터 앞' },
+      { num:'02', addr:'경기 부천시 원미구 부평로 12길 8', note:'부평동 주민센터 근처' },
+      { num:'03', addr:'경기 부천시 원미구 원미로 45', note:'부여중학교 방향' },
+      { num:'04', addr:'경기 부천시 원미구 부평동 405-3', note:'부평여자중학교 앞' },
+      { num:'05', addr:'경기 부천시 원미구 중동 1163-5', note:'모다아울렛 부평점 옆' },
+      { num:'06', addr:'경기 부천시 원미구 부평동 대아골프장 앞', note:'대아골프연습장' },
+      { num:'07', addr:'경기 부천시 원미구 중동 올리브영 부평점 옆', note:'부평역 방향 상가' },
+    ],
+    mapSvg: `<svg viewBox="0 0 358 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="358" height="160" fill="#ede8e0"/>
+      <path d="M0 75 Q90 55 180 75 Q270 95 358 70" stroke="#d4c8b0" stroke-width="18" fill="none"/>
+      <path d="M0 75 Q90 55 180 75 Q270 95 358 70" stroke="#faf8f2" stroke-width="11" fill="none"/>
+      <path d="M150 0 L155 160" stroke="#d4c8b0" stroke-width="14" fill="none"/>
+      <path d="M150 0 L155 160" stroke="#faf8f2" stroke-width="8" fill="none"/>
+      <path d="M0 120 L358 120" stroke="#d4c8b0" stroke-width="10" fill="none"/>
+      <path d="M0 120 L358 120" stroke="#faf8f2" stroke-width="6" fill="none"/>
+      <rect x="160" y="88" width="40" height="16" rx="4" fill="#d35400"/>
+      <text x="180" y="99" text-anchor="middle" font-size="7" fill="white" font-weight="bold">부평역</text>
+      <rect x="20" y="30" width="110" height="80" rx="4" fill="#d8cfc0" opacity="0.5"/>
+      <rect x="200" y="25" width="140" height="85" rx="4" fill="#d8cfc0" opacity="0.5"/>
+      <text x="75" y="18" text-anchor="middle" font-size="9" fill="#888">부평1동</text>
+      <text x="270" y="18" text-anchor="middle" font-size="9" fill="#888">중동</text>
+      <!-- pins -->
+      <circle cx="155" cy="55" r="7" fill="#d35400"/><text x="155" y="58" text-anchor="middle" font-size="6" fill="white" font-weight="bold">01</text>
+      <circle cx="130" cy="70" r="7" fill="#d35400"/><text x="130" y="73" text-anchor="middle" font-size="6" fill="white" font-weight="bold">02</text>
+      <circle cx="62" cy="65" r="7" fill="#d35400"/><text x="62" y="68" text-anchor="middle" font-size="6" fill="white" font-weight="bold">03</text>
+      <circle cx="38" cy="85" r="7" fill="#d35400"/><text x="38" y="88" text-anchor="middle" font-size="6" fill="white" font-weight="bold">04</text>
+      <circle cx="218" cy="60" r="7" fill="#d35400"/><text x="218" y="63" text-anchor="middle" font-size="6" fill="white" font-weight="bold">05</text>
+      <circle cx="255" cy="78" r="7" fill="#d35400"/><text x="255" y="81" text-anchor="middle" font-size="6" fill="white" font-weight="bold">06</text>
+      <circle cx="290" cy="60" r="7" fill="#d35400"/><text x="290" y="63" text-anchor="middle" font-size="6" fill="white" font-weight="bold">07</text>
+    </svg>`
+  },
+  '부평구': {
+    center: '인천 부평구 (부평1동 일대)',
+    color: '#16a085',
+    boxes: [
+      { num:'01', addr:'인천 부평구 부평대로 23길 5', note:'부평1동 행정복지센터 앞' },
+      { num:'02', addr:'인천 부평구 부평로 68', note:'부평역 북쪽 출구 방향' },
+      { num:'03', addr:'인천 부평구 부평1동 1072-3', note:'서부여성회관 근처' },
+      { num:'04', addr:'인천 부평구 부평동 부평여중 앞', note:'부평여자중학교 앞' },
+      { num:'05', addr:'인천 부평구 부평1동 모다아울렛 옆', note:'모다아울렛 부평점' },
+      { num:'06', addr:'인천 부평구 부평대로 스타벅스 옆', note:'부평역 상권 방향' },
+      { num:'07', addr:'인천 부평구 부평동 은화수시장 앞', note:'은화수시장 입구' },
+    ],
+    mapSvg: `<svg viewBox="0 0 358 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="358" height="160" fill="#ddeee8"/>
+      <path d="M0 80 Q90 60 180 80 Q270 100 358 75" stroke="#b8d4cc" stroke-width="18" fill="none"/>
+      <path d="M0 80 Q90 60 180 80 Q270 100 358 75" stroke="#f0faf8" stroke-width="11" fill="none"/>
+      <path d="M160 0 L165 160" stroke="#b8d4cc" stroke-width="14" fill="none"/>
+      <path d="M160 0 L165 160" stroke="#f0faf8" stroke-width="8" fill="none"/>
+      <path d="M0 40 Q100 30 200 45 Q280 55 358 40" stroke="#b8d4cc" stroke-width="12" fill="none"/>
+      <path d="M0 40 Q100 30 200 45 Q280 55 358 40" stroke="#f0faf8" stroke-width="7" fill="none"/>
+      <rect x="155" y="92" width="40" height="16" rx="4" fill="#16a085"/>
+      <text x="175" y="103" text-anchor="middle" font-size="7" fill="white" font-weight="bold">부평역</text>
+      <rect x="20" y="55" width="130" height="75" rx="4" fill="#b8d8cc" opacity="0.4"/>
+      <rect x="185" y="50" width="155" height="70" rx="4" fill="#b8d8cc" opacity="0.4"/>
+      <text x="85" y="18" text-anchor="middle" font-size="9" fill="#888">부평1동</text>
+      <text x="260" y="18" text-anchor="middle" font-size="9" fill="#888">부평동</text>
+      <!-- pins -->
+      <circle cx="162" cy="62" r="7" fill="#16a085"/><text x="162" y="65" text-anchor="middle" font-size="6" fill="white" font-weight="bold">01</text>
+      <circle cx="200" cy="72" r="7" fill="#16a085"/><text x="200" y="75" text-anchor="middle" font-size="6" fill="white" font-weight="bold">02</text>
+      <circle cx="88" cy="78" r="7" fill="#16a085"/><text x="88" y="81" text-anchor="middle" font-size="6" fill="white" font-weight="bold">03</text>
+      <circle cx="50" cy="90" r="7" fill="#16a085"/><text x="50" y="93" text-anchor="middle" font-size="6" fill="white" font-weight="bold">04</text>
+      <circle cx="225" cy="58" r="7" fill="#16a085"/><text x="225" y="61" text-anchor="middle" font-size="6" fill="white" font-weight="bold">05</text>
+      <circle cx="270" cy="68" r="7" fill="#16a085"/><text x="270" y="71" text-anchor="middle" font-size="6" fill="white" font-weight="bold">06</text>
+      <circle cx="310" cy="78" r="7" fill="#16a085"/><text x="310" y="81" text-anchor="middle" font-size="6" fill="white" font-weight="bold">07</text>
+    </svg>`
+  },
+};
+
+let currentFeaturedDistrict = '중구';
+
+function selectFeaturedDistrict(name, btn) {
+  currentFeaturedDistrict = name;
+  document.querySelectorAll('.loc-feat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLocationDetail(name);
+}
+
+function renderLocationDetail(name) {
+  const d = featuredData[name];
+
+  // ── 공통 하단 정보 블록 (운영시간 + 수거품목) ──────────────────────
+  const infoBlocks = `
+    <div class="location-info-card" style="margin-bottom:10px">
+      <div class="sub">배치하고자 하는 의류수거함 위치</div>
+      <h4>주소</h4>
+      <p>${d ? d.center : '해당 지역 수거함 정보를 확인하세요.'}</p>
+    </div>
+    <div class="location-info-card" style="border-left-color:var(--teal);margin-bottom:10px">
+      <h4>운영시간</h4>
+      <p>24시간</p>
+    </div>
+    <div class="location-info-card" style="border-left-color:var(--blue);margin-bottom:10px">
+      <h4>수거 가능 품목</h4>
+      <div class="tags">
+        <span class="tag">셔츠</span><span class="tag">바지</span><span class="tag">치마</span>
+        <span class="tag">스웨터</span><span class="tag">외투</span>
+      </div>
+    </div>`;
+
+  // ── 조사 완료 구가 아닌 경우 ────────────────────────────────────────
+  if (!d) {
+    document.getElementById('map-area').innerHTML = `
+      <svg viewBox="0 0 358 150" xmlns="http://www.w3.org/2000/svg">
+        <rect width="358" height="150" fill="#dde8de"/>
+        <path d="M0 75 Q90 55 180 75 Q270 95 358 70" stroke="#c5d6c7" stroke-width="18" fill="none"/>
+        <path d="M0 75 Q90 55 180 75 Q270 95 358 70" stroke="#f5f5f0" stroke-width="11" fill="none"/>
+        <path d="M110 0 L120 150" stroke="#c5d6c7" stroke-width="14" fill="none"/>
+        <path d="M110 0 L120 150" stroke="#f5f5f0" stroke-width="8" fill="none"/>
+        <path d="M240 0 L230 150" stroke="#c5d6c7" stroke-width="14" fill="none"/>
+        <path d="M240 0 L230 150" stroke="#f5f5f0" stroke-width="8" fill="none"/>
+        <path d="M0 22 Q60 12 110 22 Q160 32 200 17 Q240 7 358 20" stroke="#a8d4e0" stroke-width="18" fill="none" opacity="0.7"/>
+        <rect x="30" y="45" width="65" height="38" rx="4" fill="#c8d8ca" opacity="0.7"/>
+        <rect x="145" y="85" width="75" height="42" rx="4" fill="#c8d8ca" opacity="0.7"/>
+        <rect x="260" y="48" width="68" height="45" rx="4" fill="#c8d8ca" opacity="0.7"/>
+        <circle cx="179" cy="77" r="11" fill="#2db54b"/>
+        <circle cx="179" cy="77" r="5" fill="white"/>
+        <line x1="179" y1="88" x2="179" y2="100" stroke="#2db54b" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
+    document.getElementById('box-list-wrap').innerHTML = infoBlocks +
+      '<div class="box-no-data" style="background:white;border-radius:14px;padding:18px;margin-bottom:10px;box-shadow:var(--shadow-card)">📋 해당 지역의 상세 수거함 목록은<br>준비 중입니다.</div>';
+    return;
+  }
+
+  // ── 조사 완료 5개 구 ────────────────────────────────────────────────
+  document.getElementById('map-area').innerHTML = d.mapSvg;
+
+  let rows = d.boxes.map(b => `
+    <div class="box-item">
+      <div class="box-num" style="background:linear-gradient(135deg,${d.color},${d.color}cc)">${b.num}</div>
+      <div class="box-info">
+        <div class="box-addr">📍 ${b.addr}</div>
+        <div class="box-meta">${b.note}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('box-list-wrap').innerHTML = `
+    <div class="box-list-section">
+      <div class="box-list-header">
+        <h4>🗂 ${name} 수거함 목록</h4>
+        <span class="box-count-badge">${d.boxes.length}개소</span>
+      </div>
+      <div class="box-meta" style="margin-bottom:10px;font-size:11.5px;color:#888">${d.center}</div>
+      ${rows}
+    </div>
+    ${infoBlocks}`;
+}
+
+/* ── LOCATION DROPDOWN ── */
+let locCurrentCity = '서울';
+
+function buildLocDropdown(city) {
+  const opts = document.getElementById('dropdown-opts');
+  opts.innerHTML = '';
+  (locRegions[city] || []).forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'dropdown-option' + (i === 0 ? ' selected' : '');
+    div.textContent = r;
+    div.onclick = () => selectRegion(r, div);
+    opts.appendChild(div);
+  });
+  document.getElementById('selected-region').textContent = '전체';
+}
+
+function switchLocCity(city, btn) {
+  locCurrentCity = city;
+  document.querySelectorAll('.loc-city-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  closeDropdown();
+  buildLocDropdown(city);
+}
+
+function toggleDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('dropdown-opts').classList.toggle('open');
+}
+
+function closeDropdown() {
+  const d = document.getElementById('dropdown-opts');
+  if (d) d.classList.remove('open');
+}
+
+function selectRegion(region, el) {
+  document.getElementById('selected-region').textContent = region;
+  document.querySelectorAll('#dropdown-opts .dropdown-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  closeDropdown();
+  // 조사 완료 구 버튼 active 해제
+  document.querySelectorAll('.loc-feat-btn').forEach(b => b.classList.remove('active'));
+  // 지도 + 수거함 정보 갱신
+  const city = locCurrentCity;
+  const label = region === '전체' ? null : region;
+  // 조사 완료 구와 이름이 같으면 featured 렌더, 아니면 일반 렌더
+  if (label && featuredData[label]) {
+    // featured 버튼도 active 표시
+    document.querySelectorAll('.loc-feat-btn').forEach(b => {
+      if (b.textContent.trim() === label) b.classList.add('active');
+    });
+    renderLocationDetail(label);
+  } else {
+    // 일반 지역: 지도 + 기본 정보 카드
+    renderLocationDetail(null);
+    // 주소 업데이트
+    const addrEl = document.querySelector('#box-list-wrap .location-info-card p');
+    if (addrEl) addrEl.textContent = label ? (city + ' ' + label) : city + ' 전체';
+  }
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.loc-dropdown-wrap')) closeDropdown();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  buildLocDropdown('서울');
+  renderLocationDetail('중구');
+});
+
+/* ── REGION MODAL (MY PAGE) ── */
+let selectedRegion = '중구';
+let selectedCity = '서울특별시';
+
+const regionData = {
+  '서울특별시': ['강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구'],
+  '부산광역시': ['강서구','금정구','기장군','남구','동구','동래구','부산진구','북구','사상구','사하구','서구','수영구','연제구','영도구','중구','해운대구'],
+  '대구광역시': ['남구','달서구','달성군','동구','북구','서구','수성구','중구'],
+  '인천광역시': ['강화군','계양구','남동구','동구','미추홀구','부평구','서구','연수구','옹진군','중구'],
+  '광주광역시': ['광산구','남구','동구','북구','서구'],
+  '대전광역시': ['대덕구','동구','서구','유성구','중구'],
+  '울산광역시': ['남구','동구','북구','울주군','중구'],
+  '세종특별자치시': ['세종시'],
+  '경기도': ['가평군','고양시 덕양구','고양시 일산동구','고양시 일산서구','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시','성남시 분당구','성남시 수정구','성남시 중원구','수원시 권선구','수원시 영통구','수원시 장안구','수원시 팔달구','시흥시','안산시 단원구','안산시 상록구','안성시','안양시 동안구','안양시 만안구','양주시','양평군','여주시','연천군','오산시','용인시 기흥구','용인시 수지구','용인시 처인구','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시'],
+  '강원특별자치도': ['강릉시','고성군','동해시','삼척시','속초시','양구군','양양군','영월군','원주시','인제군','정선군','철원군','춘천시','태백시','평창군','홍천군','화천군','횡성군'],
+  '충청북도': ['괴산군','단양군','보은군','영동군','옥천군','음성군','제천시','증평군','진천군','청주시 상당구','청주시 서원구','청주시 청원구','청주시 흥덕구','충주시'],
+  '충청남도': ['계룡시','공주시','금산군','논산시','당진시','보령시','부여군','서산시','서천군','아산시','예산군','천안시 동남구','천안시 서북구','청양군','태안군','홍성군'],
+  '전북특별자치도': ['고창군','군산시','김제시','남원시','무주군','부안군','순창군','완주군','익산시','임실군','장수군','전주시 덕진구','전주시 완산구','정읍시','진안군'],
+  '전라남도': ['강진군','고흥군','곡성군','광양시','구례군','나주시','담양군','목포시','무안군','보성군','순천시','신안군','여수시','영광군','영암군','완도군','장성군','장흥군','진도군','함평군','해남군','화순군'],
+  '경상북도': ['경산시','경주시','고령군','구미시','군위군','김천시','문경시','봉화군','상주시','성주군','안동시','영덕군','영양군','영주시','영천시','예천군','울릉군','울진군','의성군','청도군','청송군','칠곡군','포항시 남구','포항시 북구'],
+  '경상남도': ['거제시','거창군','고성군','김해시','남해군','밀양시','사천시','산청군','양산시','의령군','진주시','창녕군','창원시 마산합포구','창원시 마산회원구','창원시 성산구','창원시 의창구','창원시 진해구','통영시','하동군','함안군','함양군','합천군'],
+  '제주특별자치도': ['서귀포시','제주시'],
+};
+
+const cityShortName = {
+  '서울특별시':'서울','부산광역시':'부산','대구광역시':'대구','인천광역시':'인천',
+  '광주광역시':'광주','대전광역시':'대전','울산광역시':'울산','세종특별자치시':'세종',
+  '경기도':'경기','강원특별자치도':'강원','충청북도':'충북','충청남도':'충남',
+  '전북특별자치도':'전북','전라남도':'전남','경상북도':'경북','경상남도':'경남','제주특별자치도':'제주'
+};
+
+function buildCityTabs() {
+  const tabsEl = document.getElementById('city-tabs');
+  tabsEl.innerHTML = '';
+  Object.keys(regionData).forEach(city => {
+    const btn = document.createElement('button');
+    btn.textContent = cityShortName[city] || city;
+    btn.style.cssText = 'flex-shrink:0;border:none;border-radius:20px;padding:5px 11px;font-size:11px;font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;transition:background 0.15s,color 0.15s;font-weight:600;';
+    if (city === selectedCity) {
+      btn.style.background = 'var(--green-main)';
+      btn.style.color = 'white';
+    } else {
+      btn.style.background = '#f2f2f2';
+      btn.style.color = '#555';
+    }
+    btn.onclick = () => { selectedCity = city; buildCityTabs(); buildDistrictGrid(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function buildDistrictGrid() {
+  const grid = document.getElementById('region-grid-inner');
+  grid.innerHTML = '';
+  (regionData[selectedCity] || []).forEach(district => {
+    const btn = document.createElement('button');
+    btn.className = 'region-btn' + (district === selectedRegion ? ' selected' : '');
+    btn.textContent = district;
+    btn.onclick = () => pickRegion(district, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function openRegionModal() {
+  buildCityTabs();
+  buildDistrictGrid();
+  document.getElementById('region-modal-overlay').classList.add('open');
+}
+
+function closeRegionModal() {
+  document.getElementById('region-modal-overlay').classList.remove('open');
+  document.getElementById('my-region-label').textContent = '📍 ' + selectedRegion;
+}
+
+function handleRegionOverlayClick(e) {
+  if (e.target === document.getElementById('region-modal-overlay')) closeRegionModal();
+}
+
+function pickRegion(region, el) {
+  selectedRegion = region;
+  document.querySelectorAll('#region-grid-inner .region-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ── DIARY FILTER ── */
+function filterDiary(category, btn) {
+  document.querySelectorAll('.diary-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.diary-entry').forEach(entry => {
+    if (category === '전체' || entry.dataset.category === category) {
+      entry.style.display = '';
+    } else {
+      entry.style.display = 'none';
+    }
+  });
+}
+</script>
+</body>
+</html>
